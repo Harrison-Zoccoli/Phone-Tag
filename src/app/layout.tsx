@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   description: "Laser tag reimagined with AI-powered vision.",
 };
 
+// Force dynamic rendering - disable SSR/static optimization to avoid build issues
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{

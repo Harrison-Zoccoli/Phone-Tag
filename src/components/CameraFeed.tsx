@@ -7,7 +7,7 @@ interface CameraFeedProps {
   onHit: (targetColor: { r: number; g: number; b: number }) => void;
   showBoundingBoxes: boolean;
   isActive: boolean;
-  canvasRef?: React.RefObject<HTMLCanvasElement>;
+  canvasRef?: React.RefObject<HTMLCanvasElement | null>;
   onCameraReady?: () => void;
 }
 
