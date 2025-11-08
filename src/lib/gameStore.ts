@@ -247,3 +247,27 @@ export function unregisterStreamer(codeInput: string) {
 
   return toPublicGame(game);
 }
+
+export function incrementPlayerScore(codeInput: string, playerName: string) {
+  const code = normalizeCode(codeInput);
+  if (!code) {
+    throw new Error("Game code is required.");
+  }
+
+  const game = games.get(code);
+  if (!game) {
+    throw new Error("Game not found.");
+  }
+
+  const player = game.players.find(
+    (p) => p.name.toLowerCase() === playerName.toLowerCase()
+  );
+
+  if (!player) {
+    throw new Error("Player not found in this game.");
+  }
+
+  player.score += 1;
+
+  return toPublicGame(game);
+}

@@ -225,7 +225,7 @@ export default function StreamerDashboardPage() {
     void fetchGame();
     pollingRef.current = setInterval(() => {
       void fetchGame();
-    }, 3000);
+    }, 1000); // Poll every second for real-time updates
 
     return () => {
       if (pollingRef.current) {
