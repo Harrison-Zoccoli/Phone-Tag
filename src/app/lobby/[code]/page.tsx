@@ -238,15 +238,15 @@ export default function LobbyPage() {
   const lobbyMessage = useMemo(() => {
     if (fetchState === "loading") return "Setting up your lobby...";
     if (fetchState === "missing") return "We couldn't find that lobby.";
-    if (fetchState === "error") return "Connection hiccup. Trying again.";
-    if (gameStatus === "active") return "Booting up Phone Tag Labs HUD...";
-    return isHost ? "Share the code and wait for your squad." : "Hang tight while everyone gears up.";
+    if (fetchState === "error") return "Connection issue. Trying again.";
+    if (gameStatus === "active") return "Booting up Phone Tag HUD...";
+    return isHost ? "Share the code." : "Hang tight while everyone gears up.";
   }, [fetchState, gameStatus, isHost]);
 
   const cameraMessage = useMemo(() => {
     if (cameraStatus === "idle") return "";
     if (cameraStatus === "requesting") return "Requesting camera permission...";
-    if (cameraStatus === "granted") return "Camera ready. You’re cleared for AR targeting.";
+    if (cameraStatus === "granted") return "Camera ready. You're cleared for AR targeting.";
     if (cameraStatus === "denied")
       return cameraError ?? "Camera permissions denied. Enable the camera to play.";
     if (cameraStatus === "unsupported")
@@ -399,13 +399,13 @@ export default function LobbyPage() {
               </section>
             ) : null}
             
-            <section className="flex flex-col items-center gap-6 rounded-3xl border border-dashed border-emerald-500/40 bg-emerald-500/5 p-8 text-center text-sm text-emerald-200">
+            <section className="flex flex-col items-center gap-6 rounded-3xl p-8 text-center text-sm text-emerald-200">
               {gameStatus === "waiting" ? (
                 <>
-                  <p className="text-base text-emerald-100">
+                  {/* <p className="text-base text-emerald-100">
                     Ready to battle? Launching the match will transport every
                     player into their Phone Tag Labs HUD.
-                  </p>
+                  </p> */}
                   <button
                     type="button"
                     onClick={handleStartGame}

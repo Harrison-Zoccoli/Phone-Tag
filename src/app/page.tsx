@@ -162,10 +162,10 @@ export default function HomePage() {
             </p>
           </div>
         </section>
-        <footer className="text-center text-xs text-slate-500 sm:text-left">
+        {/* <footer className="text-center text-xs text-slate-500 sm:text-left">
           Prototype built for hackathons. Hardware, computer vision, and battle
           mechanics coming soon.
-        </footer>
+        </footer> */}
       </main>
     </div>
   );
