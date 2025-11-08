@@ -6,14 +6,11 @@ type Player = {
   isHost: boolean;
   joinedAt: number;
   score: number;
-  gun1Ammo: number;
-  gun2Ammo: number;
-  selectedGun: 1 | 2;
 };
 
 export type PublicPlayer = Pick<
   Player,
-  "name" | "isHost" | "joinedAt" | "score" | "gun1Ammo" | "gun2Ammo" | "selectedGun"
+  "name" | "isHost" | "joinedAt" | "score"
 >;
 
 type Streamer = {
@@ -24,11 +21,10 @@ type Streamer = {
 
 export type PublicStreamer = Omit<Streamer, "id">;
 
-export type GameStatus = "waiting" | "active" | "ended";
+export type GameStatus = "waiting" | "active";
 
 type GameSettings = {
   showBoundingBoxes: boolean;
-  gameDurationMinutes: number; // Duration in minutes (default 3)
 };
 
 export type PublicGameSettings = GameSettings;
@@ -39,7 +35,6 @@ export type PublicGame = {
   players: PublicPlayer[];
   createdAt: number;
   startedAt?: number;
-  endedAt?: number;
   streamer?: PublicStreamer;
   settings: PublicGameSettings;
 };
@@ -49,7 +44,6 @@ type Game = {
   players: Player[];
   createdAt: number;
   startedAt?: number;
-  endedAt?: number;
   status: GameStatus;
   streamer?: Streamer;
   settings: GameSettings;
@@ -81,8 +75,8 @@ function generateGameCode(): string {
 }
 
 function toPublicPlayer(player: Player): PublicPlayer {
-  const { name, isHost, joinedAt, score, gun1Ammo, gun2Ammo, selectedGun } = player;
-  return { name, isHost, joinedAt, score, gun1Ammo, gun2Ammo, selectedGun };
+  const { name, isHost, joinedAt, score } = player;
+  return { name, isHost, joinedAt, score };
 }
 
 function toPublicGame(game: Game): PublicGame {
@@ -92,7 +86,6 @@ function toPublicGame(game: Game): PublicGame {
     players: game.players.map(toPublicPlayer),
     createdAt: game.createdAt,
     startedAt: game.startedAt,
-    endedAt: game.endedAt,
     streamer: game.streamer
       ? {
           name: game.streamer.name,
@@ -117,9 +110,6 @@ export function createGame(hostNameInput: string | undefined) {
     isHost: true,
     joinedAt: now,
     score: 0,
-    gun1Ammo: 10,
-    gun2Ammo: 3,
-    selectedGun: 1,
   };
 
   const game: Game = {
@@ -129,7 +119,6 @@ export function createGame(hostNameInput: string | undefined) {
     status: "waiting",
     settings: {
       showBoundingBoxes: true,
-      gameDurationMinutes: 3, // Default 3 minutes
     },
   };
 
@@ -173,9 +162,6 @@ export function joinGame(codeInput: string, playerNameInput: string) {
     isHost: false,
     joinedAt: Date.now(),
     score: 0,
-    gun1Ammo: 10,
-    gun2Ammo: 3,
-    selectedGun: 1,
   };
 
   game.players.push(player);
@@ -222,27 +208,6 @@ export function startGame(codeInput: string) {
 
   game.status = "active";
   game.startedAt = Date.now();
-
-  return toPublicGame(game);
-}
-
-export function endGame(codeInput: string) {
-  const code = normalizeCode(codeInput);
-  if (!code) {
-    throw new Error("Game code is required.");
-  }
-
-  const game = games.get(code);
-  if (!game) {
-    throw new Error("Game not found.");
-  }
-
-  if (game.status === "ended") {
-    return toPublicGame(game);
-  }
-
-  game.status = "ended";
-  game.endedAt = Date.now();
 
   return toPublicGame(game);
 }
@@ -349,108 +314,6 @@ export function updateGameSettings(
   }
 
   game.settings = { ...game.settings, ...settings };
-
-  return toPublicGame(game);
-}
-
-export function switchGun(
-  codeInput: string,
-  playerName: string,
-  gunNumber: 1 | 2,
-) {
-  const code = normalizeCode(codeInput);
-  const normalizedPlayerName = normalizeName(playerName);
-
-  if (!code) {
-    throw new Error("Game code is required.");
-  }
-
-  const game = games.get(code);
-  if (!game) {
-    throw new Error("Game not found.");
-  }
-
-  const player = game.players.find(
-    (p) => p.name.toLowerCase() === normalizedPlayerName.toLowerCase(),
-  );
-
-  if (!player) {
-    throw new Error("Player not found in this game.");
-  }
-
-  player.selectedGun = gunNumber;
-
-  return toPublicGame(game);
-}
-
-export function consumeAmmo(
-  codeInput: string,
-  playerName: string,
-) {
-  const code = normalizeCode(codeInput);
-  const normalizedPlayerName = normalizeName(playerName);
-
-  if (!code) {
-    throw new Error("Game code is required.");
-  }
-
-  const game = games.get(code);
-  if (!game) {
-    throw new Error("Game not found.");
-  }
-
-  const player = game.players.find(
-    (p) => p.name.toLowerCase() === normalizedPlayerName.toLowerCase(),
-  );
-
-  if (!player) {
-    throw new Error("Player not found in this game.");
-  }
-
-  const gun = player.selectedGun;
-  const ammoKey = gun === 1 ? 'gun1Ammo' : 'gun2Ammo';
-  
-  if (player[ammoKey] <= 0) {
-    throw new Error("No ammo remaining.");
-  }
-
-  player[ammoKey] -= 1;
-
-  return {
-    game: toPublicGame(game),
-    gun,
-    pointsMultiplier: gun === 2 ? 3 : 1,
-  };
-}
-
-export function updateAmmo(
-  codeInput: string,
-  playerName: string,
-  gun1Ammo: number,
-  gun2Ammo: number,
-) {
-  const code = normalizeCode(codeInput);
-  const normalizedPlayerName = normalizeName(playerName);
-
-  if (!code) {
-    throw new Error("Game code is required.");
-  }
-
-  const game = games.get(code);
-  if (!game) {
-    throw new Error("Game not found.");
-  }
-
-  const player = game.players.find(
-    (p) => p.name.toLowerCase() === normalizedPlayerName.toLowerCase(),
-  );
-
-  if (!player) {
-    throw new Error("Player not found in this game.");
-  }
-
-  player.gun1Ammo = Math.max(0, Math.min(10, gun1Ammo));
-  player.gun2Ammo = Math.max(0, Math.min(3, gun2Ammo));
 
   return toPublicGame(game);
 }
