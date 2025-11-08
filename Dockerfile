@@ -26,6 +26,9 @@ RUN npm prune --omit=dev
 
 FROM base
 
+# Set production environment
+ENV NODE_ENV=production
+
 # Copy built app and production dependencies
 COPY --from=build /app /app
 
